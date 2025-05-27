@@ -1,4 +1,4 @@
-package za.co.turbo.code_shield.repoTests;
+package za.co.turbo.code_shield;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import za.co.turbo.code_shield.BaseTest;
 import za.co.turbo.code_shield.model.Task;
 import za.co.turbo.code_shield.model.TaskStatus;
 import za.co.turbo.code_shield.model.User;
