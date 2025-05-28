@@ -12,6 +12,7 @@ import za.co.turbo.code_shield.model.User;
 import za.co.turbo.code_shield.repository.TaskRepository;
 import za.co.turbo.code_shield.repository.UserRepository;
 import za.co.turbo.code_shield.service.TaskService;
+import za.co.turbo.code_shield.exception.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -145,7 +146,6 @@ public class TaskServiceTest {
         // Create a spy of the TaskService
         TaskService spyTaskService = spy(taskService);
         
-        // Create a new task
         Task newTask = Task.builder()
                 .title("Spy Test Task")
                 .description("Testing with Spy")
@@ -154,21 +154,31 @@ public class TaskServiceTest {
                 .assignee(testUser)
                 .build();
 
-        // Stub the repository save
         when(taskRepository.save(any(Task.class))).thenReturn(newTask);
 
-        // Call the method through the spy
         Task result = spyTaskService.createTask(newTask);
 
-        // Verify the result
         assertNotNull(result);
         assertEquals("Spy Test Task", result.getTitle());
         
-        // Verify that the spy's method was called
         verify(spyTaskService, times(1)).createTask(newTask);
         
-        // Verify that the repository was called
         verify(taskRepository, times(1)).save(any(Task.class));
+    }
+
+    @Test
+    void getTask_NonExistingTask_ThrowsEntityNotFoundException() {
+        Long nonExistentTaskId = 999L;
+        doThrow(new EntityNotFoundException("Task", nonExistentTaskId))
+            .when(taskRepository).findById(nonExistentTaskId);
+
+        EntityNotFoundException exception = assertThrows(
+            EntityNotFoundException.class,
+            () -> taskService.getTask(nonExistentTaskId)
+        );
+
+        assertEquals("Task with id 999 not found", exception.getMessage());
+        verify(taskRepository, times(1)).findById(nonExistentTaskId);
     }
 }
 
