@@ -1,0 +1,175 @@
+package za.co.turbo.code_shield;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import za.co.turbo.code_shield.model.Task;
+import za.co.turbo.code_shield.model.TaskStatus;
+import za.co.turbo.code_shield.model.User;
+import za.co.turbo.code_shield.repository.TaskRepository;
+import za.co.turbo.code_shield.repository.UserRepository;
+import za.co.turbo.code_shield.service.TaskService;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+public class TaskServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private TaskRepository taskRepository;
+
+    @InjectMocks
+    private TaskService taskService;
+
+    private Task testTask;
+    private User testUser;
+    private static final Long TEST_USER_ID = 1L;
+    private static final Long TEST_TASK_ID = 1L;
+
+    @BeforeEach
+    void setUp() {
+        // Create test user
+        testUser = User.builder()
+                .id(TEST_USER_ID)
+                .username("testuser")
+                .email("test@test.com")
+                .password("testpassword")
+                .build();
+
+        // Create a test task
+        testTask = Task.builder()
+                .id(TEST_TASK_ID)
+                .title("Test Task")
+                .description("Test Description")
+                .status(TaskStatus.TODO)
+                .dueDate(LocalDateTime.now().plusDays(1))
+                .assignee(testUser)
+                .build();
+    }
+
+    @Test
+    void getTask_ExistingTask_ReturnsTask() {
+        when(taskRepository.findById(TEST_TASK_ID)).thenReturn(Optional.of(testTask));
+
+        Task result = taskService.getTask(TEST_TASK_ID);
+
+        assertNotNull(result);
+        assertEquals(testTask.getId(), result.getId());
+        assertEquals(testTask.getTitle(), result.getTitle());
+        verify(taskRepository, times(1)).findById(TEST_TASK_ID);
+    }
+
+    @Test
+    void getAllTasks_ReturnsTaskList() {
+        List<Task> tasks = Arrays.asList(testTask);
+        when(taskRepository.findAll()).thenReturn(tasks);
+
+        List<Task> result = taskService.getAllTasks();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(testTask.getId(), result.get(0).getId());
+        verify(taskRepository, times(1)).findAll();
+    }
+
+    @Test
+    void createTask_ValidTask_ReturnsCreatedTask() {
+        Task newTask = Task.builder()
+                .title("New Task")
+                .description("New Description")
+                .status(TaskStatus.TODO)
+                .dueDate(LocalDateTime.now().plusDays(1))
+                .assignee(testUser)
+                .build();
+
+        when(taskRepository.save(any(Task.class))).thenReturn(newTask);
+
+        Task result = taskService.createTask(newTask);
+
+        assertNotNull(result);
+        assertEquals("New Task", result.getTitle());
+        verify(taskRepository, times(1)).save(any(Task.class));
+    }
+
+    @Test
+    void updateTask_ExistingTask_ReturnsUpdatedTask() {
+        Task updatedTask = Task.builder()
+                .id(TEST_TASK_ID)
+                .title("Updated Task")
+                .status(TaskStatus.IN_PROGRESS)
+                .build();
+        
+        when(taskRepository.save(any(Task.class))).thenReturn(updatedTask);
+        when(taskRepository.existsById(TEST_TASK_ID)).thenReturn(true);
+
+        Task result = taskService.updateTask(TEST_TASK_ID, updatedTask);
+
+        assertNotNull(result);
+        assertEquals("Updated Task", result.getTitle());
+        assertEquals(TaskStatus.IN_PROGRESS, result.getStatus());
+        verify(taskRepository, times(1)).existsById(TEST_TASK_ID);
+        verify(taskRepository, times(1)).save(any(Task.class));
+    }
+
+    @Test
+    void deleteTask_ExistingTask_DeletesTask() {
+        doNothing().when(taskRepository).deleteById(TEST_TASK_ID);
+
+        taskService.deleteTask(TEST_TASK_ID);
+
+        verify(taskRepository, times(1)).deleteById(TEST_TASK_ID);
+    }
+
+    @Test
+    void getTask_NonExistingTask_ThrowsException() {
+        when(taskRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> taskService.getTask(999L));
+        verify(taskRepository, times(1)).findById(999L);
+    }
+
+    @Test
+    void createTask_WithSpy_VerifiesRepositoryInteraction() {
+        // Create a spy of the TaskService
+        TaskService spyTaskService = spy(taskService);
+        
+        // Create a new task
+        Task newTask = Task.builder()
+                .title("Spy Test Task")
+                .description("Testing with Spy")
+                .status(TaskStatus.TODO)
+                .dueDate(LocalDateTime.now().plusDays(1))
+                .assignee(testUser)
+                .build();
+
+        // Stub the repository save
+        when(taskRepository.save(any(Task.class))).thenReturn(newTask);
+
+        // Call the method through the spy
+        Task result = spyTaskService.createTask(newTask);
+
+        // Verify the result
+        assertNotNull(result);
+        assertEquals("Spy Test Task", result.getTitle());
+        
+        // Verify that the spy's method was called
+        verify(spyTaskService, times(1)).createTask(newTask);
+        
+        // Verify that the repository was called
+        verify(taskRepository, times(1)).save(any(Task.class));
+    }
+}
+
+//@spy on service 
