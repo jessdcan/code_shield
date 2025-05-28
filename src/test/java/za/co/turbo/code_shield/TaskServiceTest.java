@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import za.co.turbo.code_shield.model.Task;
 import za.co.turbo.code_shield.model.TaskStatus;
 import za.co.turbo.code_shield.model.User;
@@ -33,6 +35,9 @@ public class TaskServiceTest {
 
     @InjectMocks
     private TaskService taskService;
+
+    @Captor
+    private ArgumentCaptor<Task> taskCaptor;
 
     private Task testTask;
     private User testUser;
@@ -179,6 +184,87 @@ public class TaskServiceTest {
 
         assertEquals("Task with id 999 not found", exception.getMessage());
         verify(taskRepository, times(1)).findById(nonExistentTaskId);
+    }
+
+    @Test
+    void createTask_WithArgumentMatchers_VerifiesTaskCreation() {
+        Task newTask = Task.builder()
+                .title("New Task")
+                .description("New Description")
+                .status(TaskStatus.TODO)
+                .dueDate(LocalDateTime.now().plusDays(1))
+                .assignee(testUser)
+                .build();
+
+        when(taskRepository.save(argThat(task -> 
+            task.getTitle().equals("New Task") && 
+            task.getStatus() == TaskStatus.TODO
+        ))).thenReturn(newTask);
+
+        Task result = taskService.createTask(newTask);
+
+        assertNotNull(result);
+        assertEquals("New Task", result.getTitle());
+        verify(taskRepository).save(argThat(task -> 
+            task.getTitle().equals("New Task") && 
+            task.getStatus() == TaskStatus.TODO
+        ));
+    }
+
+    @Test
+    void updateTask_WithArgumentCaptor_VerifiesTaskUpdates() {
+        Task updatedTask = Task.builder()
+                .id(TEST_TASK_ID)
+                .title("Updated Task")
+                .description("Updated Description")
+                .status(TaskStatus.IN_PROGRESS)
+                .dueDate(LocalDateTime.now().plusDays(2))
+                .assignee(testUser)
+                .build();
+        
+        when(taskRepository.existsById(TEST_TASK_ID)).thenReturn(true);
+        when(taskRepository.save(any(Task.class))).thenReturn(updatedTask);
+
+        Task result = taskService.updateTask(TEST_TASK_ID, updatedTask);
+
+        verify(taskRepository).save(taskCaptor.capture());
+        Task capturedTask = taskCaptor.getValue();
+
+        assertNotNull(result);
+        assertEquals(TEST_TASK_ID, capturedTask.getId());
+        assertEquals("Updated Task", capturedTask.getTitle());
+        assertEquals("Updated Description", capturedTask.getDescription());
+        assertEquals(TaskStatus.IN_PROGRESS, capturedTask.getStatus());
+        assertNotNull(capturedTask.getDueDate());
+        assertEquals(testUser, capturedTask.getAssignee());
+    }
+
+    @Test
+    void createTask_WithComplexArgumentMatchers_VerifiesTaskCreation() {
+        Task newTask = Task.builder()
+                .title("Complex Task")
+                .description("Complex Description")
+                .status(TaskStatus.TODO)
+                .dueDate(LocalDateTime.now().plusDays(1))
+                .assignee(testUser)
+                .build();
+
+        when(taskRepository.save(argThat(task -> 
+            task.getTitle().contains("Complex") && 
+            task.getDescription().length() > 10 &&
+            task.getStatus() == TaskStatus.TODO &&
+            task.getDueDate().isAfter(LocalDateTime.now())
+        ))).thenReturn(newTask);
+
+        Task result = taskService.createTask(newTask);
+
+        assertNotNull(result);
+        verify(taskRepository).save(argThat(task -> 
+            task.getTitle().contains("Complex") && 
+            task.getDescription().length() > 10 &&
+            task.getStatus() == TaskStatus.TODO &&
+            task.getDueDate().isAfter(LocalDateTime.now())
+        ));
     }
 }
 
