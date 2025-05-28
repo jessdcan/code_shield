@@ -2,6 +2,8 @@ package za.co.turbo.code_shield.service;
 
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TaskService {
+    @Autowired
     private final TaskRepository taskRepository;
 
     @Cacheable(value = "tasks", key = "#id")

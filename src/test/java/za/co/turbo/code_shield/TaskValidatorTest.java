@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ValidatorTest extends BaseTest {
+public class TaskValidatorTest extends BaseTest {
     @Autowired
     private TaskValidator taskValidator;
 
