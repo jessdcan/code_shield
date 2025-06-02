@@ -42,6 +42,15 @@ public class TaskValidatorTest extends BaseTest {
     }
 
     @Test
+    void validate_NullTitle_ThrowsException() {
+        validTask.setTitle(null);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> taskValidator.validate(validTask),
+            "Empty title should throw IllegalArgumentException");
+        assertEquals("Task title is required", exception.getMessage());
+    }
+
+    @Test
     void validate_NullDueDate_ThrowsException() {
         validTask.setDueDate(null);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,

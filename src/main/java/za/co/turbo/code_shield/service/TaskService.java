@@ -8,7 +8,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityNotFoundException;
+import za.co.turbo.code_shield.exception.EntityNotFoundException;
 import za.co.turbo.code_shield.model.Task;
 import za.co.turbo.code_shield.repository.TaskRepository;
 
@@ -23,7 +23,7 @@ public class TaskService {
     @Cacheable(value = "tasks", key = "#id")
     public Task getTask(Long id) {
         return taskRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Task", id));
     }
 
     @CacheEvict(value = "tasks", key = "#result.id")
@@ -34,7 +34,7 @@ public class TaskService {
     @CacheEvict(value = "tasks", key = "#id")
     public Task updateTask(Long id, Task task) {
         if (!taskRepository.existsById(id)) {
-            throw new EntityNotFoundException("Task not found with id: " + id);
+            throw new EntityNotFoundException("Task", id);
         }
         task.setId(id);
         return taskRepository.save(task);

@@ -187,6 +187,24 @@ public class TaskServiceTest {
     }
 
     @Test
+    void getTask_UpdateNonExistingTask_ThrowsEntityNotFoundException() {
+        Task updatedNonExistingTask = Task.builder()
+                .id(999L)
+                .title("Updated Non Existing Task")
+                .status(TaskStatus.IN_PROGRESS)
+                .build();
+        when(taskRepository.existsById(999L)).thenReturn(false);
+
+        EntityNotFoundException exception = assertThrows(
+            EntityNotFoundException.class,
+            () -> taskService.updateTask(999L, updatedNonExistingTask)
+        );
+
+        assertEquals("Task with id 999 not found", exception.getMessage());
+        verify(taskRepository, times(1)).existsById(999L);
+    }
+
+    @Test
     void createTask_WithArgumentMatchers_VerifiesTaskCreation() {
         Task newTask = Task.builder()
                 .title("New Task")
