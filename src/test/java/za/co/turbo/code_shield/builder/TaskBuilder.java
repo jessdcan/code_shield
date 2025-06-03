@@ -6,34 +6,34 @@ import za.co.turbo.code_shield.model.User;
 
 import java.time.LocalDateTime;
 
-public class TaskTestDataBuilder {
+public class TaskBuilder {
     private String title = "Default Task";
     private String description = "Default Description";
     private TaskStatus status = TaskStatus.TODO;
     private LocalDateTime dueDate = LocalDateTime.now().plusDays(1);
     private User assignee;
 
-    public TaskTestDataBuilder withTitle(String title) {
+    public TaskBuilder withTitle(String title) {
         this.title = title;
         return this;
     }
 
-    public TaskTestDataBuilder withDescription(String description) {
+    public TaskBuilder withDescription(String description) {
         this.description = description;
         return this;
     }
 
-    public TaskTestDataBuilder withStatus(TaskStatus status) {
+    public TaskBuilder withStatus(TaskStatus status) {
         this.status = status;
         return this;
     }
 
-    public TaskTestDataBuilder withDueDate(LocalDateTime dueDate) {
+    public TaskBuilder withDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
         return this;
     }
 
-    public TaskTestDataBuilder withAssignee(User assignee) {
+    public TaskBuilder withAssignee(User assignee) {
         this.assignee = assignee;
         return this;
     }
@@ -48,7 +48,7 @@ public class TaskTestDataBuilder {
                 .build();
     }
 
-    public static TaskTestDataBuilder aTask() {
-        return new TaskTestDataBuilder();
+    public static TaskBuilder aTask() {
+        return new TaskBuilder();
     }
 } 

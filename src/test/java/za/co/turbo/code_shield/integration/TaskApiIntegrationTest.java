@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Tag;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
-import za.co.turbo.code_shield.builder.TaskTestDataBuilder;
+import za.co.turbo.code_shield.builder.TaskBuilder;
 import za.co.turbo.code_shield.model.Task;
 import za.co.turbo.code_shield.model.TaskStatus;
 
@@ -33,7 +33,7 @@ public class TaskApiIntegrationTest {
     @Test
     void createTask_ValidTask_ReturnsCreatedTask() {
         // Given
-        Task newTask = TaskTestDataBuilder.aTask()
+        Task newTask = TaskBuilder.aTask()
                 .withTitle("Integration Test Task")
                 .withDescription("Testing task creation via API")
                 .withStatus(TaskStatus.TODO)
@@ -56,7 +56,7 @@ public class TaskApiIntegrationTest {
     @Test
     void createTask_EmptyTitle_ReturnsBadRequest() {
         // Given
-        Task invalidTask = TaskTestDataBuilder.aTask()
+        Task invalidTask = TaskBuilder.aTask()
                 .withTitle("")  // Empty title should fail validation
                 .build();
 
@@ -75,7 +75,7 @@ public class TaskApiIntegrationTest {
     @Test
     void createTask_NullTitle_ReturnsBadRequest() {
         // Given
-        Task invalidTask = TaskTestDataBuilder.aTask()
+        Task invalidTask = TaskBuilder.aTask()
                 .withTitle(null)  // Null title should fail validation
                 .build();
 
@@ -94,7 +94,7 @@ public class TaskApiIntegrationTest {
     @Test
     void createTask_PastDueDate_ReturnsBadRequest() {
         // Given
-        Task invalidTask = TaskTestDataBuilder.aTask()
+        Task invalidTask = TaskBuilder.aTask()
                 .withDueDate(LocalDateTime.now().minusDays(1))  // Past due date
                 .build();
 
@@ -113,7 +113,7 @@ public class TaskApiIntegrationTest {
     @Test
     void createTask_NullStatus_ReturnsBadRequest() {
         // Given
-        Task invalidTask = TaskTestDataBuilder.aTask()
+        Task invalidTask = TaskBuilder.aTask()
                 .withStatus(null)  // Null status should fail validation
                 .build();
 
@@ -132,7 +132,7 @@ public class TaskApiIntegrationTest {
     @Test
     void getTask_ExistingTask_ReturnsTask() {
         // First create a task
-        Task newTask = TaskTestDataBuilder.aTask()
+        Task newTask = TaskBuilder.aTask()
                 .withTitle("Task to Retrieve")
                 .build();
 
@@ -169,7 +169,7 @@ public class TaskApiIntegrationTest {
     @Test
     void updateTask_ValidData_ReturnsUpdatedTask() {
         // First create a task
-        Task newTask = TaskTestDataBuilder.aTask()
+        Task newTask = TaskBuilder.aTask()
                 .withTitle("Original Title")
                 .build();
 
@@ -183,7 +183,7 @@ public class TaskApiIntegrationTest {
             .path("id");
 
         // Then update it
-        Task updatedTask = TaskTestDataBuilder.aTask()
+        Task updatedTask = TaskBuilder.aTask()
                 .withTitle("Updated Title")
                 .withStatus(TaskStatus.IN_PROGRESS)
                 .build();
@@ -203,7 +203,7 @@ public class TaskApiIntegrationTest {
     @Test
     void updateTask_InvalidData_ReturnsBadRequest() {
         // First create a task
-        Task newTask = TaskTestDataBuilder.aTask()
+        Task newTask = TaskBuilder.aTask()
                 .withTitle("Original Title")
                 .build();
 
@@ -217,7 +217,7 @@ public class TaskApiIntegrationTest {
             .path("id");
 
         // Then try to update it with invalid data
-        Task invalidTask = TaskTestDataBuilder.aTask()
+        Task invalidTask = TaskBuilder.aTask()
                 .withTitle("")  // Empty title
                 .withStatus(TaskStatus.IN_PROGRESS)
                 .build();
@@ -236,7 +236,7 @@ public class TaskApiIntegrationTest {
     @Test
     void deleteTask_ExistingTask_ReturnsNoContent() {
         // First create a task
-        Task newTask = TaskTestDataBuilder.aTask()
+        Task newTask = TaskBuilder.aTask()
                 .withTitle("Task to Delete")
                 .build();
 
