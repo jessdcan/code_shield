@@ -49,7 +49,6 @@ public class TaskServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Create test user
         testUser = User.builder()
                 .id(TEST_USER_ID)
                 .username("testuser")
@@ -57,7 +56,6 @@ public class TaskServiceTest {
                 .password("testpassword")
                 .build();
 
-        // Create a test task
         testTask = Task.builder()
                 .id(TEST_TASK_ID)
                 .title("Test Task")
