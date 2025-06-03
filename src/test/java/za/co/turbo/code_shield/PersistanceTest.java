@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import za.co.turbo.code_shield.model.Task;
@@ -15,6 +16,8 @@ import za.co.turbo.code_shield.model.User;
 import za.co.turbo.code_shield.repository.TaskRepository;
 import za.co.turbo.code_shield.repository.UserRepository;
 
+@Tag("repository")
+@Tag("integration")
 public class PersistanceTest extends BaseTest {
 
     @Autowired

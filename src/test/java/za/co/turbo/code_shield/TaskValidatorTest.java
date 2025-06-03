@@ -2,6 +2,7 @@ package za.co.turbo.code_shield;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import za.co.turbo.code_shield.model.Task;
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("validation")
+@Tag("unit")
 public class TaskValidatorTest extends BaseTest {
     @Autowired
     private TaskValidator taskValidator;
