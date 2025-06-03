@@ -16,6 +16,7 @@ import za.co.turbo.code_shield.repository.TaskRepository;
 import za.co.turbo.code_shield.repository.UserRepository;
 import za.co.turbo.code_shield.service.TaskService;
 import za.co.turbo.code_shield.exception.EntityNotFoundException;
+import za.co.turbo.code_shield.validator.TaskValidator;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -35,6 +36,9 @@ public class TaskServiceTest {
 
     @Mock
     private TaskRepository taskRepository;
+
+    @Mock
+    private TaskValidator taskValidator;
 
     @InjectMocks
     private TaskService taskService;
@@ -64,6 +68,8 @@ public class TaskServiceTest {
                 .dueDate(LocalDateTime.now().plusDays(1))
                 .assignee(testUser)
                 .build();
+            
+        lenient().doNothing().when(taskValidator).validate(any(Task.class));
     }
 
     @Test
