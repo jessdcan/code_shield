@@ -1,24 +1,21 @@
 package za.co.turbo.code_shield.service;
 
-
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
 import za.co.turbo.code_shield.exception.EntityNotFoundException;
 import za.co.turbo.code_shield.model.Task;
 import za.co.turbo.code_shield.repository.TaskRepository;
+import za.co.turbo.code_shield.validator.TaskValidator;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class TaskService {
-    @Autowired
     private final TaskRepository taskRepository;
+    private final TaskValidator taskValidator;
 
     @Cacheable(value = "tasks", key = "#id")
     public Task getTask(Long id) {
@@ -28,6 +25,7 @@ public class TaskService {
 
     @CacheEvict(value = "tasks", key = "#result.id")
     public Task createTask(Task task) {
+        taskValidator.validate(task);
         return taskRepository.save(task);
     }
 
@@ -37,6 +35,7 @@ public class TaskService {
             throw new EntityNotFoundException("Task", id);
         }
         task.setId(id);
+        taskValidator.validate(task);
         return taskRepository.save(task);
     }
 
