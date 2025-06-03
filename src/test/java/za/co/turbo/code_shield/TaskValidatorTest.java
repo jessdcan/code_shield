@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import za.co.turbo.code_shield.model.Task;
 import za.co.turbo.code_shield.model.TaskStatus;
 import za.co.turbo.code_shield.validator.TaskValidator;
+import za.co.turbo.code_shield.mother.TaskMother;
 
 import java.time.LocalDateTime;
 
@@ -23,10 +24,7 @@ public class TaskValidatorTest extends BaseTest {
 
     @BeforeEach
     void setUp() {
-        validTask = new Task();
-        validTask.setTitle("Test Task");
-        validTask.setDueDate(LocalDateTime.now().plusDays(1));
-        validTask.setStatus(TaskStatus.TODO);
+        validTask = TaskMother.validTask();
     }
 
     @Test
@@ -37,45 +35,45 @@ public class TaskValidatorTest extends BaseTest {
 
     @Test
     void validate_EmptyTitle_ThrowsException() {
-        validTask.setTitle("");
+        Task invalidTask = TaskMother.invalidTaskWithEmptyTitle();
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> taskValidator.validate(validTask),
+            () -> taskValidator.validate(invalidTask),
             "Empty title should throw IllegalArgumentException");
         assertEquals("Task title is required", exception.getMessage());
     }
 
     @Test
     void validate_NullTitle_ThrowsException() {
-        validTask.setTitle(null);
+        Task invalidTask = TaskMother.taskWithTitle(null);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> taskValidator.validate(validTask),
+            () -> taskValidator.validate(invalidTask),
             "Empty title should throw IllegalArgumentException");
         assertEquals("Task title is required", exception.getMessage());
     }
 
     @Test
     void validate_NullDueDate_ThrowsException() {
-        validTask.setDueDate(null);
+        Task invalidTask = TaskMother.taskWithDueDate(null);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> taskValidator.validate(validTask),
+            () -> taskValidator.validate(invalidTask),
             "Null due date should throw IllegalArgumentException");
         assertEquals("Due date is required", exception.getMessage());
     }
 
     @Test
     void validate_PastDueDate_ThrowsException() {
-        validTask.setDueDate(LocalDateTime.now().minusDays(1));
+        Task invalidTask = TaskMother.invalidTaskWithPastDueDate();
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> taskValidator.validate(validTask),
+            () -> taskValidator.validate(invalidTask),
             "Past due date should throw IllegalArgumentException");
         assertEquals("Due date cannot be in the past", exception.getMessage());
     }
 
     @Test
     void validate_NullStatus_ThrowsException() {
-        validTask.setStatus(null);
+        Task invalidTask = TaskMother.invalidTaskWithNullStatus();
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> taskValidator.validate(validTask),
+            () -> taskValidator.validate(invalidTask),
             "Null status should throw IllegalArgumentException");
         assertEquals("Task status is required", exception.getMessage());
     }
