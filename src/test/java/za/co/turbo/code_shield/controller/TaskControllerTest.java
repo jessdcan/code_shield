@@ -7,12 +7,15 @@ import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import za.co.turbo.code_shield.model.Task;
 import za.co.turbo.code_shield.model.TaskStatus;
 import za.co.turbo.code_shield.model.User;
+import za.co.turbo.code_shield.mother.TaskMother;
 import za.co.turbo.code_shield.service.TaskService;
+import za.co.turbo.code_shield.validator.TaskValidator;
 import za.co.turbo.code_shield.exception.EntityNotFoundException;
 
 import java.time.LocalDateTime;
@@ -39,10 +42,15 @@ public class TaskControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
+    private TaskValidator taskValidator;
+
+    @MockBean
     private TaskService taskService;
 
     private Task testTask;
     private User testUser;
+
+    private TaskMother taskMother = new TaskMother();
 
     @BeforeEach
     void setUp() {
@@ -156,11 +164,16 @@ public class TaskControllerTest {
                 .title("") // Empty title should fail validation
                 .build();
 
+        when(taskService.createTask(any(Task.class)))
+            .thenThrow(new IllegalArgumentException("Task title is required"));
+
         mockMvc.perform(post("/api/tasks")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidTask)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.errors.message").value("Task title is required"));
 
-        verify(taskService, never()).createTask(any(Task.class));
+        verify(taskService, times(1)).createTask(any(Task.class));
     }
 } 
